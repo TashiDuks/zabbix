@@ -1,0 +1,230 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: 5607e26681244712bfb7325396402d32
+      name: AL-Printers
+  templates:
+    - uuid: a051427682b64ec18327c8a997dbfa9c
+      template: 'Ricoh SP C262SFNw'
+      name: 'Ricoh SP C262SFNw'
+      description: 'Customized Template for Ricoh SP C262SFNw printers.'
+      templates:
+        - name: 'ICMP Ping'
+        - name: 'Template SNMP Generic'
+      groups:
+        - name: AL-Printers
+      items:
+        - uuid: 2f8adfe5bb664963bb4fc82d6a013343
+          name: 'Black Toner Level'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.4
+          key: blackTonerLevel
+          delay: 3m
+          units: '%'
+          triggers:
+            - uuid: acf73d1a552141a98520fc1e808e54e6
+              expression: 'last(/Ricoh SP C262SFNw/blackTonerLevel)<25'
+              name: 'Black Toner Almost Empty'
+              priority: HIGH
+              description: 'Black tonner level less than 25%'
+            - uuid: 494e669589384ff8917fa08bb05decd2
+              expression: 'last(/Ricoh SP C262SFNw/blackTonerLevel)<30'
+              name: 'Black toner near to end'
+              priority: WARNING
+        - uuid: 2d9a2ef4a05541858f9e68a4ad908cd4
+          name: 'Black Remaining'
+          type: CALCULATED
+          key: cBlackRemain
+          units: '%'
+          params: last(//cUsed)-last(//tonerBlack)
+        - uuid: 3dd063d145734fcbad93c0fd3b598de1
+          name: Used
+          type: CALCULATED
+          key: cUsed
+          units: '%'
+          params: '100'
+        - uuid: 072cd1659fe64cd2925a3491b534c670
+          name: 'Cyan Toner Level'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.1
+          key: cyanTonerLevel
+          delay: 3m
+          units: '%'
+          triggers:
+            - uuid: be356765ce674e498878daedd2e52b6f
+              expression: 'last(/Ricoh SP C262SFNw/cyanTonerLevel)<25'
+              name: 'Cyan Toner Almost Empty'
+              priority: HIGH
+              description: 'Cyan tonner level less than 25%'
+            - uuid: 7ecdd8bda6504bfc960a507e8cacfea9
+              expression: 'last(/Ricoh SP C262SFNw/cyanTonerLevel)<30'
+              name: 'Cyan toner near to end'
+              priority: WARNING
+        - uuid: 30d5ec16d92c47249804a9796700e0d1
+          name: 'Magenta Toner Level'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.2
+          key: magentaTonerLevel
+          delay: 3m
+          units: '%'
+          triggers:
+            - uuid: 28fb7450c1fe457d85620983136bf5b0
+              expression: 'last(/Ricoh SP C262SFNw/magentaTonerLevel)<25'
+              name: 'Magenta Toner Almost Empty'
+              priority: HIGH
+              description: 'Magenta tonner level less than 25%'
+            - uuid: a839d0c2bf244494b17c7f57cb5a8bbf
+              expression: 'last(/Ricoh SP C262SFNw/magentaTonerLevel)<30'
+              name: 'Magenta toner near to end'
+              priority: WARNING
+        - uuid: 9d66aaab511248aa8c79e30cb5be70a9
+          name: 'Total Page - Overall'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.1.0
+          key: pageTotal
+          units: Pages
+          description: 'Total number of pages printed combinedly (Printer, scanner, copier).'
+        - uuid: 04c61d441a01430aaf157cd4045e23e8
+          name: 'Total Page - Copier'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.4.0
+          key: pageTotalCopier
+          units: Pages
+        - uuid: f8072c5eb51a48458208ed2d45ab837a
+          name: 'Total Page - Printer'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.2.0
+          key: pageTotalPrinter
+          units: Pages
+          description: 'Total number of page printed by PRINTER.'
+        - uuid: 47590164163943fe970c6077078e71cc
+          name: 'Black Used'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.4
+          key: tonerBlackUsed
+          delay: 3m
+          units: '%'
+        - uuid: 9be4bdabedd743a99d020f7fca47eda1
+          name: 'Yellow Toner Level'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.3
+          key: yellowTonerLevel
+          delay: 3m
+          units: '%'
+          triggers:
+            - uuid: 8e8eacbac6c64b239231a635360abdec
+              expression: 'last(/Ricoh SP C262SFNw/yellowTonerLevel)<25'
+              name: 'Yellow Toner Almost Empty'
+              priority: HIGH
+              description: 'Yellow tonner level less than 25%'
+            - uuid: 91611fb79e4b45dfbc5f36617b1882c5
+              expression: 'last(/Ricoh SP C262SFNw/yellowTonerLevel)<30'
+              name: 'Yellow toner near to end'
+              priority: WARNING
+  graphs:
+    - uuid: 0010e15cd75849ca97b9ff7e645a4e17
+      name: Black
+      width: '50'
+      height: '250'
+      yaxismax: '0'
+      show_work_period: 'NO'
+      show_triggers: 'NO'
+      type: PIE
+      show_3d: 'YES'
+      graph_items:
+        - color: '000000'
+          calc_fnc: LAST
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: blackTonerLevel
+        - sortorder: '1'
+          color: FF0000
+          calc_fnc: MAX
+          type: GRAPH_SUM
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: cUsed
+    - uuid: 11d37737f7d94ff5b1330a08a1f8f891
+      name: Cyan
+      width: '50'
+      height: '250'
+      yaxismax: '0'
+      show_work_period: 'NO'
+      show_triggers: 'NO'
+      type: PIE
+      show_3d: 'YES'
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: LAST
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: cyanTonerLevel
+        - sortorder: '1'
+          color: FF4000
+          calc_fnc: MAX
+          type: GRAPH_SUM
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: cUsed
+    - uuid: 9668380459b84ff3b7f624ad66492a71
+      name: Magenta
+      width: '50'
+      height: '250'
+      yaxismax: '0'
+      show_work_period: 'NO'
+      show_triggers: 'NO'
+      type: PIE
+      show_3d: 'YES'
+      graph_items:
+        - color: BF00FF
+          calc_fnc: LAST
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: magentaTonerLevel
+        - sortorder: '1'
+          color: FF4000
+          calc_fnc: MAX
+          type: GRAPH_SUM
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: cUsed
+    - uuid: 4fda2ecf87394fc7a52832a93371cda9
+      name: testba
+      yaxismax: '0'
+      show_work_period: 'NO'
+      show_triggers: 'NO'
+      type: PIE
+      graph_items:
+        - color: '000000'
+          calc_fnc: LAST
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: cBlackRemain
+        - sortorder: '1'
+          color: FFEBEE
+          calc_fnc: MIN
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: tonerBlackUsed
+    - uuid: 0ad50f825e334442b6feb0a3ad05ba27
+      name: Yellow
+      width: '50'
+      height: '250'
+      yaxismax: '0'
+      show_work_period: 'NO'
+      show_triggers: 'NO'
+      type: EXPLODED
+      show_3d: 'YES'
+      graph_items:
+        - color: FFFF00
+          calc_fnc: LAST
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: yellowTonerLevel
+        - sortorder: '1'
+          color: FF4000
+          calc_fnc: MAX
+          type: GRAPH_SUM
+          item:
+            host: 'Ricoh SP C262SFNw'
+            key: cUsed
