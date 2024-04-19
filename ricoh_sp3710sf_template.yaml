@@ -14,6 +14,12 @@ zabbix_export:
       groups:
         - name: AL-Printers
       items:
+        - uuid: 4051207e34a444a5a0b6595da3614261
+          name: 'Black Toner Left'
+          type: CALCULATED
+          key: blackTonerLeft
+          delay: 3m
+          params: last(//blackTonerLevel)
         - uuid: 9da383f5e3194dd38f9cae664010812a
           name: 'Black Toner Level'
           type: SNMP_AGENT
@@ -32,11 +38,18 @@ zabbix_export:
               name: 'Black toner near to end'
               priority: WARNING
               description: 'Black tonner level less than 30%'
-        - uuid: 2fe44148a91d484f9b7143d15bdf1287
-          name: Used
+        - uuid: c23b4d0db968455b880b28bcd6268596
+          name: 'Black Toner Used'
           type: CALCULATED
-          key: cUsed
+          key: blackTonerUsed
+          params: last(//maxTonnerCapacity)-last(//blackTonerLeft)
+        - uuid: b602adb55c6d40499a437eff634789d8
+          name: 'Toner Maximum Capacity'
+          type: CALCULATED
+          key: maxTonnerCapacity
+          units: '%'
           params: '100'
+          description: 'This is a fixed value to be used to calculate the toner level for the graph.'
         - uuid: ca32bd176fd84376838e115b5fc13b49
           name: 'Total Page - Overall'
           type: SNMP_AGENT
@@ -66,25 +79,40 @@ zabbix_export:
       show_work_period: 'NO'
       show_triggers: 'NO'
       type: PIE
-      show_3d: 'YES'
       graph_items:
         - color: '000000'
           calc_fnc: LAST
           item:
             host: 'Ricoh SP 3710SF'
-            key: blackTonerLevel
+            key: blackTonerLeft
         - sortorder: '1'
-          color: FF4000
-          calc_fnc: MAX
-          type: GRAPH_SUM
+          color: C3C3C3
+          calc_fnc: LAST
           item:
             host: 'Ricoh SP 3710SF'
-            key: cUsed
-    - uuid: 751860e37cef4d6fa0155ae4023fee30
-      name: 'Total Pages Printed'
+            key: blackTonerUsed
+    - uuid: 7d434198056b4b839ecc05cc120158d0
+      name: 'Overall Page Used'
       graph_items:
-        - color: 1A7C11
+        - color: A1887F
           calc_fnc: ALL
           item:
             host: 'Ricoh SP 3710SF'
             key: pageTotal
+    - uuid: ecc16f7cc6594eb8b858e9504b106cb8
+      name: 'Pages used by Printing'
+      graph_items:
+        - color: BA68C8
+          calc_fnc: ALL
+          item:
+            host: 'Ricoh SP 3710SF'
+            key: pageTotalPrinter
+    - uuid: 751860e37cef4d6fa0155ae4023fee30
+      name: 'Page used by Copier'
+      type: STACKED
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: MAX
+          item:
+            host: 'Ricoh SP 3710SF'
+            key: pageTotalCopier

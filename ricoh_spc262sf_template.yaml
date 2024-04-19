@@ -14,13 +14,18 @@ zabbix_export:
       groups:
         - name: AL-Printers
       items:
+        - uuid: 47590164163943fe970c6077078e71cc
+          name: 'Black Toner Left'
+          type: CALCULATED
+          key: blackTonerLeft
+          delay: 3m
+          params: last(//blackTonerLevel)
         - uuid: 2f8adfe5bb664963bb4fc82d6a013343
           name: 'Black Toner Level'
           type: SNMP_AGENT
           snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.4
           key: blackTonerLevel
           delay: 3m
-          units: '%'
           triggers:
             - uuid: acf73d1a552141a98520fc1e808e54e6
               expression: 'last(/Ricoh SP C262SFNw/blackTonerLevel)<25'
@@ -32,24 +37,22 @@ zabbix_export:
               name: 'Black toner near to end'
               priority: WARNING
         - uuid: 2d9a2ef4a05541858f9e68a4ad908cd4
-          name: 'Black Remaining'
+          name: 'Black Toner Used'
           type: CALCULATED
-          key: cBlackRemain
-          units: '%'
-          params: last(//cUsed)-last(//tonerBlack)
-        - uuid: 3dd063d145734fcbad93c0fd3b598de1
-          name: Used
+          key: blackTonerUsed
+          params: last(//maxTonnerCapacity)-last(//blackTonerLeft)
+        - uuid: 1e13293745bb49299ac5a03f700ba094
+          name: 'Cyan Toner Left'
           type: CALCULATED
-          key: cUsed
-          units: '%'
-          params: '100'
+          key: cyanTonerLeft
+          delay: 3m
+          params: last(//cyanTonerLevel)
         - uuid: 072cd1659fe64cd2925a3491b534c670
           name: 'Cyan Toner Level'
           type: SNMP_AGENT
           snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.1
           key: cyanTonerLevel
           delay: 3m
-          units: '%'
           triggers:
             - uuid: be356765ce674e498878daedd2e52b6f
               expression: 'last(/Ricoh SP C262SFNw/cyanTonerLevel)<25'
@@ -60,6 +63,17 @@ zabbix_export:
               expression: 'last(/Ricoh SP C262SFNw/cyanTonerLevel)<30'
               name: 'Cyan toner near to end'
               priority: WARNING
+        - uuid: f38ca1d0d0464325b45a70879c29ea54
+          name: 'Cyan Toner Used'
+          type: CALCULATED
+          key: cyanTonerUsed
+          params: last(//maxTonnerCapacity)-last(//cyanTonerLeft)
+        - uuid: abae6cf2467546819d345342ab17fead
+          name: 'Magenta Toner Left'
+          type: CALCULATED
+          key: magentaTonerLeft
+          delay: 3m
+          params: last(//magentaTonerLevel)
         - uuid: 30d5ec16d92c47249804a9796700e0d1
           name: 'Magenta Toner Level'
           type: SNMP_AGENT
@@ -77,6 +91,18 @@ zabbix_export:
               expression: 'last(/Ricoh SP C262SFNw/magentaTonerLevel)<30'
               name: 'Magenta toner near to end'
               priority: WARNING
+        - uuid: ea95e6e1e0c9458c9773db61d1fe2015
+          name: 'Magenta Toner Used'
+          type: CALCULATED
+          key: magentaTonerUsed
+          params: last(//maxTonnerCapacity)-last(//magentaTonerLeft)
+        - uuid: 3dd063d145734fcbad93c0fd3b598de1
+          name: 'Toner Maximum Capacity'
+          type: CALCULATED
+          key: maxTonnerCapacity
+          units: '%'
+          params: '100'
+          description: 'This is a fixed value to be used to calculate the toner level for the graph.'
         - uuid: 9d66aaab511248aa8c79e30cb5be70a9
           name: 'Total Page - Overall'
           type: SNMP_AGENT
@@ -97,13 +123,12 @@ zabbix_export:
           key: pageTotalPrinter
           units: Pages
           description: 'Total number of page printed by PRINTER.'
-        - uuid: 47590164163943fe970c6077078e71cc
-          name: 'Black Used'
-          type: SNMP_AGENT
-          snmp_oid: .1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.4
-          key: tonerBlackUsed
+        - uuid: dc4ef480ae2f4d7c95b3fa9fa993cf1c
+          name: 'Yellow Toner Left'
+          type: CALCULATED
+          key: yellowTonerLeft
           delay: 3m
-          units: '%'
+          params: last(//yellowTonerLevel)
         - uuid: 9be4bdabedd743a99d020f7fca47eda1
           name: 'Yellow Toner Level'
           type: SNMP_AGENT
@@ -121,11 +146,14 @@ zabbix_export:
               expression: 'last(/Ricoh SP C262SFNw/yellowTonerLevel)<30'
               name: 'Yellow toner near to end'
               priority: WARNING
+        - uuid: 2b008a1fce744688814de5c95b13923e
+          name: 'Yellow Toner Used'
+          type: CALCULATED
+          key: yellowTonerUsed
+          params: last(//maxTonnerCapacity)-last(//yellowTonerLeft)
   graphs:
-    - uuid: 0010e15cd75849ca97b9ff7e645a4e17
-      name: Black
-      width: '50'
-      height: '250'
+    - uuid: 4fda2ecf87394fc7a52832a93371cda9
+      name: 'Black Toner Level'
       yaxismax: '0'
       show_work_period: 'NO'
       show_triggers: 'NO'
@@ -136,38 +164,34 @@ zabbix_export:
           calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: blackTonerLevel
+            key: blackTonerLeft
         - sortorder: '1'
-          color: FF0000
-          calc_fnc: MAX
-          type: GRAPH_SUM
+          color: C3C3C3
+          calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: cUsed
-    - uuid: 11d37737f7d94ff5b1330a08a1f8f891
-      name: Cyan
-      width: '50'
-      height: '250'
+            key: blackTonerUsed
+    - uuid: faf22d2669954ff49ab8dd988ecf99ea
+      name: 'Cyan Toner Level'
       yaxismax: '0'
       show_work_period: 'NO'
       show_triggers: 'NO'
       type: PIE
       show_3d: 'YES'
       graph_items:
-        - color: 1A7C11
+        - color: 00FFFF
           calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: cyanTonerLevel
+            key: cyanTonerLeft
         - sortorder: '1'
-          color: FF4000
-          calc_fnc: MAX
-          type: GRAPH_SUM
+          color: C3C3C3
+          calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: cUsed
+            key: cyanTonerUsed
     - uuid: 9668380459b84ff3b7f624ad66492a71
-      name: Magenta
+      name: 'Magenta Toner Level'
       width: '50'
       height: '250'
       yaxismax: '0'
@@ -180,34 +204,23 @@ zabbix_export:
           calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: magentaTonerLevel
+            key: magentaTonerLeft
         - sortorder: '1'
-          color: FF4000
-          calc_fnc: MAX
-          type: GRAPH_SUM
-          item:
-            host: 'Ricoh SP C262SFNw'
-            key: cUsed
-    - uuid: 4fda2ecf87394fc7a52832a93371cda9
-      name: testba
-      yaxismax: '0'
-      show_work_period: 'NO'
-      show_triggers: 'NO'
-      type: PIE
-      graph_items:
-        - color: '000000'
+          color: C3C3C3
           calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: cBlackRemain
-        - sortorder: '1'
-          color: FFEBEE
-          calc_fnc: MIN
+            key: magentaTonerUsed
+    - uuid: 9b67aa7dc4634a37a47d5d26171a2b3c
+      name: 'Overall Pages Used'
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: ALL
           item:
             host: 'Ricoh SP C262SFNw'
-            key: tonerBlackUsed
+            key: pageTotal
     - uuid: 0ad50f825e334442b6feb0a3ad05ba27
-      name: Yellow
+      name: 'Yellow Toner Level'
       width: '50'
       height: '250'
       yaxismax: '0'
@@ -220,11 +233,10 @@ zabbix_export:
           calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: yellowTonerLevel
+            key: yellowTonerLeft
         - sortorder: '1'
-          color: FF4000
-          calc_fnc: MAX
-          type: GRAPH_SUM
+          color: C3C3C3
+          calc_fnc: LAST
           item:
             host: 'Ricoh SP C262SFNw'
-            key: cUsed
+            key: yellowTonerUsed
