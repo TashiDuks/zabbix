@@ -8,9 +8,6 @@ zabbix_export:
       template: 'Ricoh SP C252SF'
       name: 'Ricoh SP C252SF'
       description: 'Customized Template for Ricoh SP C252SF printers.'
-      templates:
-        - name: 'ICMP Ping'
-        - name: 'Template SNMP Generic'
       groups:
         - name: AL-Printers
       items:
@@ -58,7 +55,7 @@ zabbix_export:
           units: '%'
           triggers:
             - uuid: a359b11b4ae84ce494c8815b5176123e
-              expression: 'last(/Ricoh SP C252SF/cyanTonerLevel)<3'
+              expression: 'last(/Ricoh SP C252SF/cyanTonerLevel)<5'
               name: 'Cyan Toner Almost Empty'
               priority: HIGH
               description: 'Cyan tonner level less than 25%'
@@ -71,6 +68,61 @@ zabbix_export:
           type: CALCULATED
           key: cyanTonerUsed
           params: last(//maxTonnerCapacity)-last(//cyanTonerLeft)
+        - uuid: e81417973ca2435191bef319d6f89d20
+          name: 'ICMP ping'
+          type: SIMPLE
+          key: icmpping
+          history: 1w
+          tags:
+            - tag: Application
+              value: Status
+          triggers:
+            - uuid: 06bc5cfa003a4e36adce60352a7b11a7
+              expression: 'max(/Ricoh SP C252SF/icmpping,#3)=0'
+              name: 'Unavailable by ICMP ping'
+              priority: HIGH
+              description: 'Last three attempts returned timeout.  Please check device connectivity.'
+        - uuid: e82327a275bc4938923e75e7d3a78942
+          name: 'ICMP loss'
+          type: SIMPLE
+          key: icmppingloss
+          history: 1w
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: Application
+              value: Status
+          triggers:
+            - uuid: 2193ecedbede4c83bad471a7b32b7f46
+              expression: 'min(/Ricoh SP C252SF/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Ricoh SP C252SF/icmppingloss,5m)<100'
+              name: 'High ICMP ping loss'
+              opdata: 'Loss: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              type: MULTIPLE
+              dependencies:
+                - name: 'Unavailable by ICMP ping'
+                  expression: 'max(/Ricoh SP C252SF/icmpping,#3)=0'
+        - uuid: dcc048f45e4f4cf788b3d2e8c9b20d73
+          name: 'ICMP response time'
+          type: SIMPLE
+          key: icmppingsec
+          history: 1w
+          value_type: FLOAT
+          units: s
+          tags:
+            - tag: Application
+              value: Status
+          triggers:
+            - uuid: e60d0876838a4ce39d4b9ca3712410d3
+              expression: 'avg(/Ricoh SP C252SF/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}'
+              name: 'High ICMP ping response time'
+              opdata: 'Value: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              dependencies:
+                - name: 'High ICMP ping loss'
+                  expression: 'min(/Ricoh SP C252SF/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Ricoh SP C252SF/icmppingloss,5m)<100'
+                - name: 'Unavailable by ICMP ping'
+                  expression: 'max(/Ricoh SP C252SF/icmpping,#3)=0'
         - uuid: 3e1405b8f04643ad81239c04e89b6e62
           name: 'Magenta Toner Left'
           type: CALCULATED
@@ -107,25 +159,100 @@ zabbix_export:
           params: '100'
           description: 'This is a fixed value to be used to calculate the toner level for the graph.'
         - uuid: a96f2c8b95d648c7b27d690478b1ea47
-          name: 'Total Page - Overall'
+          name: 'Total Page Used - Overall'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.1.0
           key: pageTotal
-          units: Pages
+          trends: '0'
+          value_type: CHAR
           description: 'Total number of pages printed combinedly (Printer, scanner, copier).'
         - uuid: 16136c913dfd42339575c337b961c17a
-          name: 'Total Page - Copier'
+          name: 'Total Page Used - Copier'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.4.0
           key: pageTotalCopier
-          units: Pages
+          trends: '0'
+          value_type: CHAR
         - uuid: bdcdf81da8d548e69d03b7d37c0b78e3
-          name: 'Total Page - Printer'
+          name: 'Total Page Used - Printer'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.2.0
           key: pageTotalPrinter
-          units: Pages
+          trends: '0'
+          value_type: CHAR
           description: 'Total number of page printed by PRINTER.'
+        - uuid: a7e83abde253406d93d65620bea3423c
+          name: 'Device contact details'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysContact.0'
+          key: sysContact
+          delay: '3600'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          description: 'The textual identification of the contact person for this managed node, together with information on how to contact this person.  If no contact information is known, the value is the zero-length string.'
+          inventory_link: CONTACT
+          tags:
+            - tag: Application
+              value: General
+        - uuid: ab735b8695694804aba74f10c7834d84
+          name: 'Device description'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysDescr.0'
+          key: sysDescr
+          delay: '3600'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          description: 'A textual description of the entity.  This value should include the full name and version identification of the system''s hardware type, software operating-system, and networking software.'
+          inventory_link: HARDWARE
+          tags:
+            - tag: Application
+              value: General
+        - uuid: 27c79818030744549ca7266e19169f6b
+          name: 'Device location'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysLocation.0'
+          key: sysLocation
+          delay: '3600'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          description: 'The physical location of this node (e.g., `telephone closet, 3rd floor'').  If the location is unknown, the value is the zero-length string.'
+          inventory_link: LOCATION
+          tags:
+            - tag: Application
+              value: General
+        - uuid: bed5fa8a4d624161a4a589332921085d
+          name: 'Device name'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysName.0'
+          key: sysName
+          delay: '3600'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          description: 'An administratively-assigned name for this managed node. By convention, this is the node''s fully-qualified domain name.  If the name is unknown, the value is the zero-length string.'
+          inventory_link: NAME
+          tags:
+            - tag: Application
+              value: General
+        - uuid: d585d20397cf4ed696692a30bfa5cc29
+          name: 'Device uptime'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysUpTime.0'
+          key: sysUpTime
+          delay: '60'
+          history: 7d
+          units: uptime
+          description: 'The time since the network management portion of the system was last re-initialized.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: Application
+              value: General
         - uuid: 38cd536b965b427aa35a4c446e2687af
           name: 'Yellow Toner Left'
           type: CALCULATED

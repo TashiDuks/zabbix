@@ -4,20 +4,20 @@ zabbix_export:
     - uuid: 5607e26681244712bfb7325396402d32
       name: AL-Printers
   templates:
-    - uuid: 44e47cf08c9a4a3fbedb360534f2e60d
-      template: 'Ricoh SP 3710SF'
-      name: 'Ricoh SP 3710SF'
+    - uuid: 4f0688c61b064fda9a63055d5f02f762
+      template: 'Ricoh Aficio SP 3510SF'
+      name: 'Ricoh Aficio SP 3510SF'
       description: 'Customized Template for Ricoh SP 3710SF printers.'
       groups:
         - name: AL-Printers
       items:
-        - uuid: 4051207e34a444a5a0b6595da3614261
+        - uuid: 73c225f1dcaf45e78e0a4bea82f9baa9
           name: 'Black Toner Left'
           type: CALCULATED
           key: blackTonerLeft
           delay: 3m
           params: last(//blackTonerLevel)
-        - uuid: 9da383f5e3194dd38f9cae664010812a
+        - uuid: fcdfa2ef04984e258d01fa72282d7011
           name: 'Black Toner Level'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.24.1.1.5.1
@@ -25,22 +25,22 @@ zabbix_export:
           delay: '30'
           units: '%'
           triggers:
-            - uuid: cc623c61bcb64d9f90913a1d2d084f4b
-              expression: 'last(/Ricoh SP 3710SF/blackTonerLevel)<25'
+            - uuid: 2bed4bcbd60d4c18ade519c267172c6c
+              expression: 'last(/Ricoh Aficio SP 3510SF/blackTonerLevel)<25'
               name: 'Black Toner Almost Empty'
               priority: HIGH
               description: 'Black tonner level less than 25%'
-            - uuid: bae11b1b9f884a12a19931084661fb5e
-              expression: 'last(/Ricoh SP 3710SF/blackTonerLevel)<30'
+            - uuid: 351b57ea1d0149f684b7abbf68c3cf15
+              expression: 'last(/Ricoh Aficio SP 3510SF/blackTonerLevel)<30'
               name: 'Black toner near to end'
               priority: WARNING
               description: 'Black tonner level less than 30%'
-        - uuid: c23b4d0db968455b880b28bcd6268596
+        - uuid: bc1018dbb1f84b3299d5b754f26836e8
           name: 'Black Toner Used'
           type: CALCULATED
           key: blackTonerUsed
           params: last(//maxTonnerCapacity)-last(//blackTonerLeft)
-        - uuid: 8e6cc1085f2242e38e18ff08e9c74aa5
+        - uuid: 74308880d7374522a970d48408e8725a
           name: 'ICMP ping'
           type: SIMPLE
           key: icmpping
@@ -49,12 +49,12 @@ zabbix_export:
             - tag: Application
               value: Status
           triggers:
-            - uuid: 6b265a0c6db74c7fbfb4f8a9e96de2ab
-              expression: 'max(/Ricoh SP 3710SF/icmpping,#3)=0'
+            - uuid: 0b4e037cb4f64a6bb3c19324cda030c3
+              expression: 'max(/Ricoh Aficio SP 3510SF/icmpping,#3)=0'
               name: 'Unavailable by ICMP ping'
               priority: HIGH
               description: 'Last three attempts returned timeout.  Please check device connectivity.'
-        - uuid: f17c62a9fc2d49749136402484568a72
+        - uuid: 185c866f2f6b4b3c8c4b5627d3f489c5
           name: 'ICMP loss'
           type: SIMPLE
           key: icmppingloss
@@ -65,16 +65,16 @@ zabbix_export:
             - tag: Application
               value: Status
           triggers:
-            - uuid: aac71b70f5174e628e3d2caaba40c168
-              expression: 'min(/Ricoh SP 3710SF/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Ricoh SP 3710SF/icmppingloss,5m)<100'
+            - uuid: 3f83786a87c7439691e2c2361279ebb4
+              expression: 'min(/Ricoh Aficio SP 3510SF/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Ricoh Aficio SP 3510SF/icmppingloss,5m)<100'
               name: 'High ICMP ping loss'
               opdata: 'Loss: {ITEM.LASTVALUE1}'
               priority: WARNING
               type: MULTIPLE
               dependencies:
                 - name: 'Unavailable by ICMP ping'
-                  expression: 'max(/Ricoh SP 3710SF/icmpping,#3)=0'
-        - uuid: 21e29d92b8484818bf38ffe0c17e074d
+                  expression: 'max(/Ricoh Aficio SP 3510SF/icmpping,#3)=0'
+        - uuid: a881ec931f8a4c49a4d74ccde76ed1a7
           name: 'ICMP response time'
           type: SIMPLE
           key: icmppingsec
@@ -85,24 +85,24 @@ zabbix_export:
             - tag: Application
               value: Status
           triggers:
-            - uuid: c57cd7c098b34d00a9aa960d91ad7ebd
-              expression: 'avg(/Ricoh SP 3710SF/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}'
+            - uuid: a6ec952d07b84936ac8c19bcb1d1ff6f
+              expression: 'avg(/Ricoh Aficio SP 3510SF/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}'
               name: 'High ICMP ping response time'
               opdata: 'Value: {ITEM.LASTVALUE1}'
               priority: WARNING
               dependencies:
                 - name: 'High ICMP ping loss'
-                  expression: 'min(/Ricoh SP 3710SF/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Ricoh SP 3710SF/icmppingloss,5m)<100'
+                  expression: 'min(/Ricoh Aficio SP 3510SF/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Ricoh Aficio SP 3510SF/icmppingloss,5m)<100'
                 - name: 'Unavailable by ICMP ping'
-                  expression: 'max(/Ricoh SP 3710SF/icmpping,#3)=0'
-        - uuid: b602adb55c6d40499a437eff634789d8
+                  expression: 'max(/Ricoh Aficio SP 3510SF/icmpping,#3)=0'
+        - uuid: f432413ae4b24332be1910fe7d79fec8
           name: 'Toner Maximum Capacity'
           type: CALCULATED
           key: maxTonnerCapacity
           units: '%'
           params: '100'
           description: 'This is a fixed value to be used to calculate the toner level for the graph.'
-        - uuid: ca32bd176fd84376838e115b5fc13b49
+        - uuid: 74e9d93772e9456b837b71ad558306f8
           name: 'Total Page Used - Overall'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.1.0
@@ -110,14 +110,14 @@ zabbix_export:
           trends: '0'
           value_type: CHAR
           description: 'Total number of pages printed combinedly (Printer, scanner, copier).'
-        - uuid: f98ed9db531047c0b4185ec8cb9f4c01
+        - uuid: 1216dab8d49c469094437a348a1ce4d4
           name: 'Total Page Used - Copier'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.4.0
           key: pageTotalCopier
           trends: '0'
           value_type: CHAR
-        - uuid: b9a026b5cd1c4d2c867c08461e8eddd7
+        - uuid: 1727edbf6d5143079e411814c187dfe9
           name: 'Total Page Used - Printer'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.367.3.2.1.2.19.2.0
@@ -125,7 +125,7 @@ zabbix_export:
           trends: '0'
           value_type: CHAR
           description: 'Total number of page printed by PRINTER.'
-        - uuid: c4bd10405c6b4803a7dd1319d5900d65
+        - uuid: 5d52eef805094076b9450ad661be7d0e
           name: 'Device contact details'
           type: SNMP_AGENT
           snmp_oid: 'SNMPv2-MIB::sysContact.0'
@@ -139,7 +139,7 @@ zabbix_export:
           tags:
             - tag: Application
               value: General
-        - uuid: 6ba48028327b431fb7252fddf4cc81dc
+        - uuid: c58f1a912761445cbcd01ebb25d9e604
           name: 'Device description'
           type: SNMP_AGENT
           snmp_oid: 'SNMPv2-MIB::sysDescr.0'
@@ -153,7 +153,7 @@ zabbix_export:
           tags:
             - tag: Application
               value: General
-        - uuid: 3a441f1142834e78af92a136e18cac8a
+        - uuid: 5f655118a18c48a2a47587df0d1807c1
           name: 'Device location'
           type: SNMP_AGENT
           snmp_oid: 'SNMPv2-MIB::sysLocation.0'
@@ -167,7 +167,7 @@ zabbix_export:
           tags:
             - tag: Application
               value: General
-        - uuid: a304f51c9f834d33a5a5f2438e3a21ba
+        - uuid: 4d7085b953ca4666a976237fdae39f23
           name: 'Device name'
           type: SNMP_AGENT
           snmp_oid: 'SNMPv2-MIB::sysName.0'
@@ -181,7 +181,7 @@ zabbix_export:
           tags:
             - tag: Application
               value: General
-        - uuid: 9f45d8743b78496d97fc80033c49137e
+        - uuid: 4ea77a77dd0148729bc32abc95138d58
           name: 'Device uptime'
           type: SNMP_AGENT
           snmp_oid: 'SNMPv2-MIB::sysUpTime.0'
@@ -198,7 +198,7 @@ zabbix_export:
             - tag: Application
               value: General
   graphs:
-    - uuid: d38fb985866341118be985aa04ed4976
+    - uuid: 56d839d49b8b4bdf8ee93e8aaedbfd12
       name: 'Black Toner Level'
       width: '50'
       height: '250'
@@ -210,36 +210,36 @@ zabbix_export:
         - color: '000000'
           calc_fnc: LAST
           item:
-            host: 'Ricoh SP 3710SF'
+            host: 'Ricoh Aficio SP 3510SF'
             key: blackTonerLeft
         - sortorder: '1'
           color: C3C3C3
           calc_fnc: LAST
           item:
-            host: 'Ricoh SP 3710SF'
+            host: 'Ricoh Aficio SP 3510SF'
             key: blackTonerUsed
-    - uuid: 7d434198056b4b839ecc05cc120158d0
+    - uuid: fe6a89f35c6a4f718e603ea3d6a9bb68
       name: 'Overall Page Used'
       graph_items:
         - color: A1887F
           calc_fnc: ALL
           item:
-            host: 'Ricoh SP 3710SF'
+            host: 'Ricoh Aficio SP 3510SF'
             key: pageTotal
-    - uuid: ecc16f7cc6594eb8b858e9504b106cb8
+    - uuid: e2e1c563f0c6401b990ad026677d2ab6
       name: 'Pages used by Printing'
       graph_items:
         - color: BA68C8
           calc_fnc: ALL
           item:
-            host: 'Ricoh SP 3710SF'
+            host: 'Ricoh Aficio SP 3510SF'
             key: pageTotalPrinter
-    - uuid: 751860e37cef4d6fa0155ae4023fee30
+    - uuid: ee9b1b03b45a42ff8a63b450323eebe3
       name: 'Page used by Copier'
       type: STACKED
       graph_items:
         - color: 1A7C11
           calc_fnc: MAX
           item:
-            host: 'Ricoh SP 3710SF'
+            host: 'Ricoh Aficio SP 3510SF'
             key: pageTotalCopier
